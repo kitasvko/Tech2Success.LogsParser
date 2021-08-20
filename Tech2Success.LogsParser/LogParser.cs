@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Text.RegularExpressions;
 using Tech2Success.LogsParser.Models;
@@ -24,34 +25,75 @@ namespace Tech2Success.LogsParser
             var parsedLogs = new List<Log>();
             
             for (int i = 0; i < _logs.Length - 1; i++)
-                if (Regex.IsMatch(_logs[i], Pattern) && CheckTitleTask(_logs[i]))
+                //if (Regex.IsMatch(_logs[i], Pattern) && CheckTitleTask(_logs[i]))
+                if(_logs[i].EndsWith("OldCIProcessingTask OldCIProcessingTask started.") || _logs[i].EndsWith("OldCIProcessingTask OldCIProcessingTask stopped."))
                     processedLogs.Add(ProcessLog(_logs[i]));
 
-            foreach (var logsGroup in processedLogs.GroupBy(x => x.ThreadId))
+            for (var i = 0; i <= processedLogs.Count-1;)
             {
-                var firstLog = logsGroup.FirstOrDefault(x => x.Status == "started.");
-                foreach (var log in logsGroup)
+                var currentLog = processedLogs[i];
+                var threadId = currentLog.ThreadId;
+                var log = new Log();
+
+                if (currentLog.Status == "started.")
                 {
-                    if(log.Status == "stopped.")
-                    {
-                        firstLog.EndDate = log.StartDate;
-                        firstLog.Duration = firstLog.EndDate - firstLog.StartDate;
-                        parsedLogs.Add(firstLog);
-                    }
-                    if(log.Status == "started.")
-                    {
-                        firstLog = log;
-                    }
+                    log.StartDate = currentLog.StartDate;
+                    log.ThreadId = threadId;
                 }
+
+                i++;
+
+                if (i <= processedLogs.Count - 1)
+                {
+                    var nextLog = processedLogs[i];
+
+                    if (nextLog.ThreadId != threadId)
+                    {
+                        
+                        parsedLogs.Add(log);
+                        continue;
+                    }
+
+                    if (nextLog.Status == "stopped.")
+                    {
+                        log.EndDate = nextLog.StartDate;
+                        log.Duration = nextLog.StartDate - currentLog.StartDate;
+                    }
+
+                    i++;
+                }
+
+                parsedLogs.Add(log);
             }
-            return parsedLogs.OrderBy(x => x.EndDate).ToList();
+
+            //foreach (var logsGroup in processedLogs.GroupBy(x => x.ThreadId))
+            //{
+            //    var firstLog = logsGroup.FirstOrDefault(x => x.Status == "started.");
+            //    foreach (var log in logsGroup)
+            //    {
+            //        if(log.Status == "stopped.")
+            //        {
+            //            firstLog.EndDate = log.StartDate;
+            //            firstLog.Duration = firstLog.EndDate - firstLog.StartDate;
+            //            parsedLogs.Add(firstLog);
+            //        }
+            //        if(log.Status == "started.")
+            //        {
+            //            firstLog = log;
+            //        }
+            //    }
+            //}
+            return parsedLogs.OrderBy(x => x.StartDate).ToList();
         }
         private bool CheckTitleTask(string line)
         {
             var splittedLog = line.Split(' ');
-            if (splittedLog[5].StartsWith("OldCIProcessingTask"))
-                return true;
-            return false;
+            //if (splittedLog[5].StartsWith("OldCIProcessingTask"))
+            //    return true;
+            //return false;
+
+            var result = splittedLog[5].StartsWith("OldCIProcessingTask");
+            return result;
         }
         private Log ProcessLog(string line)
         {
