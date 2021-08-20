@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -57,9 +58,11 @@ namespace Tech2Success.LogsParser
             var splittedLog = line.Split(' ');
             var log = new Log();
 
-            _ = TimeSpan.TryParse(splittedLog[1], out TimeSpan time);
-            if (DateTime.TryParse(splittedLog[0], out DateTime date))
-                log.StartDate = date + time;
+            _ = DateTime.TryParseExact($"{splittedLog[0]} {splittedLog[1]}", new string[] { "yyyy-MM-dd HH:mm:ss,fff" },
+                System.Globalization.CultureInfo.InvariantCulture,
+                System.Globalization.DateTimeStyles.None, out DateTime date);
+
+                log.StartDate = date;
 
             log.ThreadId = int.Parse(splittedLog[2].Trim(new char[] { '[', ']' }));
             log.Title = splittedLog[5];

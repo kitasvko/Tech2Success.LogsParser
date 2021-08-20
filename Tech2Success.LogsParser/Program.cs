@@ -9,10 +9,11 @@ namespace Tech2Success.LogsParser
     {
         static void Main(string[] args)
         {
-            var parser = new LogParser("2021-08-18.log");
+            var logDate = "2021-07-21";
+            var parser = new LogParser($"DmsBusinessTasks_general-{logDate}.log");
             var logs = parser.Parse();
             WriteLogs(logs);
-            var exporter = new ExcelExporter("logs.csv");
+            var exporter = new ExcelExporter($"logs_{logDate}.csv");
             exporter.ExportToExcel(logs);
         }
         private static void WriteLogs(IEnumerable<Log> logs)
