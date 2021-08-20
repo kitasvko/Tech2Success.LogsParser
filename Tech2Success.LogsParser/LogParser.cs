@@ -23,7 +23,7 @@ namespace Tech2Success.LogsParser
             var parsedLogs = new List<Log>();
             
             for (int i = 0; i < _logs.Length - 1; i++)
-                if (Regex.IsMatch(_logs[i], Pattern))
+                if (Regex.IsMatch(_logs[i], Pattern) && CheckTitleTask(_logs[i]))
                     processedLogs.Add(ProcessLog(_logs[i]));
 
             foreach (var logsGroup in processedLogs.GroupBy(x => x.ThreadId))
@@ -45,6 +45,13 @@ namespace Tech2Success.LogsParser
             }
             return parsedLogs.OrderBy(x => x.EndDate).ToList();
         }
+        private bool CheckTitleTask(string line)
+        {
+            var splittedLog = line.Split(' ');
+            if (splittedLog[5].StartsWith("OldCIProcessingTask"))
+                return true;
+            return false;
+        }
         private Log ProcessLog(string line)
         {
             var splittedLog = line.Split(' ');
@@ -55,6 +62,7 @@ namespace Tech2Success.LogsParser
                 log.StartDate = date + time;
 
             log.ThreadId = int.Parse(splittedLog[2].Trim(new char[] { '[', ']' }));
+            log.Title = splittedLog[5];
             log.Status = splittedLog[splittedLog.Length - 1];
             return log;
         }

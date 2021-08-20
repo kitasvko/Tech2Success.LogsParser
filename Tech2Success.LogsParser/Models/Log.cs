@@ -9,6 +9,7 @@ namespace Tech2Success.LogsParser.Models
         public int ThreadId { get; set; }
         public TimeSpan Duration { get; set; }
         public string Status { get; set; }
+        public string Title { get; set; }
 
         public override string ToString()
         {
