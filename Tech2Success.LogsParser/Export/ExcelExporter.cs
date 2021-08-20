@@ -21,8 +21,8 @@ namespace Tech2Success.LogsParser.Export
 
             for (int i = 0; i < logs.Count; i++)
             {
-                var newLine = string.Format("{0},{1:hh\\:mm\\:ss\\:fff},{2},{3:hh\\:mm\\:ss\\:fff}", 
-                    logs[i].Date.ToShortDateString(), logs[i].Time, logs[i].ThreadId, logs[i].Duration);
+                var newLine = string.Format("{0},{1},{2},{3:hh\\:mm\\:ss\\:fff}", 
+                    logs[i].StartDate, logs[i].EndDate, logs[i].ThreadId, logs[i].Duration);
                 csv.AppendLine(newLine);
             }
 

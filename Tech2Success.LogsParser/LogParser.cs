@@ -33,7 +33,8 @@ namespace Tech2Success.LogsParser
                 {
                     if(log.Status == "stopped.")
                     {
-                        firstLog.Duration = log.Time - firstLog.Time;
+                        firstLog.EndDate = log.StartDate;
+                        firstLog.Duration = firstLog.EndDate - firstLog.StartDate;
                         parsedLogs.Add(firstLog);
                     }
                     if(log.Status == "started.")
@@ -42,17 +43,16 @@ namespace Tech2Success.LogsParser
                     }
                 }
             }
-            return parsedLogs.OrderBy(x => x.Time).ToList();
+            return parsedLogs.OrderBy(x => x.EndDate).ToList();
         }
         private Log ProcessLog(string line)
         {
             var splittedLog = line.Split(' ');
             var log = new Log();
 
+            _ = TimeSpan.TryParse(splittedLog[1], out TimeSpan time);
             if (DateTime.TryParse(splittedLog[0], out DateTime date))
-                log.Date = date.Date;
-            if (TimeSpan.TryParse(splittedLog[1], out TimeSpan time))
-                log.Time = time;
+                log.StartDate = date + time;
 
             log.ThreadId = int.Parse(splittedLog[2].Trim(new char[] { '[', ']' }));
             log.Status = splittedLog[splittedLog.Length - 1];
