@@ -20,10 +20,10 @@ namespace Tech2Success.LogsParser
             var parsedLogs = new List<OutputLog>();
 
             for (int i = 0; i < _logs.Length - 1; i++)
-                if (_logs[i].EndsWith("OldCIProcessingTask OldCIProcessingTask started.")
-                    || _logs[i].Contains("OldCIProcessingTask Start upload CI report processing for batch #1, batchSize")
-                    || _logs[i].EndsWith("OldCIProcessingTask OldCIProcessingTask stopped."))
+            {
+                if (IsMatched(_logs[i]))
                     processedLogs.Add(ProcessLog(_logs[i]));
+            }
 
             for (var i = 0; i <= processedLogs.Count - 1;)
             {
@@ -37,39 +37,77 @@ namespace Tech2Success.LogsParser
                     log.ThreadId = threadId;
                 }
 
-                i++;
-
-                if (i <= processedLogs.Count - 1)
+                while(++i <= processedLogs.Count - 1)
                 {
                     var nextLog = processedLogs[i];
 
                     if (nextLog.ThreadId != threadId)
                     {
-                        parsedLogs.Add(log);
-                        continue;
+                        break;
                     }
 
                     if (nextLog.Status != "stopped." && nextLog.Status != "started.")
                     {
                         log.BatchSize = nextLog.BatchSize;
-                        i++;
-
-                        if (i <= processedLogs.Count - 1)
-                        {
-                            var crntLog = processedLogs[i];
-
-                            if (crntLog.Status == "stopped.")
-                            {
-                                log.EndDate = crntLog.Date;
-                                log.Duration = log.EndDate - currentLog.Date;
-                            }
-                        }
+                        continue;
                     }
-                    i++;
-                }
 
+                    if (nextLog.Status == "stopped.")
+                    {
+                        log.EndDate = nextLog.Date;
+                        log.Duration = log.EndDate - currentLog.Date;
+                        i++;
+                        break;
+                    }
+                }
                 parsedLogs.Add(log);
             }
+
+
+            //for (var i = 0; i <= processedLogs.Count - 1;)
+            //{
+            //    var currentLog = processedLogs[i];
+            //    var threadId = currentLog.ThreadId;
+            //    var log = new OutputLog();
+
+            //    if (currentLog.Status == "started.")
+            //    {
+            //        log.StartDate = currentLog.Date;
+            //        log.ThreadId = threadId;
+            //    }
+
+            //    i++;
+
+            //    if (i <= processedLogs.Count - 1)
+            //    {
+            //        var nextLog = processedLogs[i];
+
+            //        if (nextLog.ThreadId != threadId)
+            //        {
+            //            parsedLogs.Add(log);
+            //            continue;
+            //        }
+
+            //        if (nextLog.Status != "stopped." && nextLog.Status != "started.")
+            //        {
+            //            log.BatchSize = nextLog.BatchSize;
+            //            i++;
+            //        }
+
+            //        if (i <= processedLogs.Count - 1)
+            //        {
+            //            var crntLog = processedLogs[i];
+
+            //            if (crntLog.Status == "stopped.")
+            //            {
+            //                log.EndDate = crntLog.Date;
+            //                log.Duration = log.EndDate - currentLog.Date;
+            //            }
+            //        }
+            //        i++;
+            //    }
+            //    parsedLogs.Add(log);
+            //}
             return parsedLogs;
         }
 
@@ -92,6 +130,13 @@ namespace Tech2Success.LogsParser
                 log.BatchSize = int.Parse(batchSize.Remove(batchSize.Length - 1));
             }
             return log;
+        }
+
+        private bool IsMatched(string line)
+        {
+            return line.EndsWith("OldCIProcessingTask OldCIProcessingTask started.")
+                    || line.Contains("OldCIProcessingTask Start upload CI report processing for batch #1, batchSize")
+                        || line.EndsWith("OldCIProcessingTask OldCIProcessingTask stopped.");
         }
     }
 }

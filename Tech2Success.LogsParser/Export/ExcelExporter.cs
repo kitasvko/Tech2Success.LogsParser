@@ -1,6 +1,4 @@
-﻿using CsvHelper;
-using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using Tech2Success.LogsParser.Models;
