@@ -21,7 +21,7 @@ namespace Tech2Success.LogsParser.Managers
         public void Start()
         {
             var logs = new List<OutputLog>();
-            var files = Directory.GetFiles(_filesPath, "*.log");
+            var files = Directory.GetFiles(_filesPath, "DmsBusinessTasks_general-*");
 
             for (int i = 0; i < files.Length; i++)
             {
@@ -39,15 +39,8 @@ namespace Tech2Success.LogsParser.Managers
 
         private List<OutputLog> Parse(string file)
         {
-            var logDate = GetFileDate(file);
-            var parser = new LogParser(Path.Combine(_filesPath, $"DmsBusinessTasks_general-{logDate}.log"));
+            var parser = new LogParser(Path.Combine(_filesPath, file));
             return parser.Parse();
-        }
-
-        private string GetFileDate(string file)
-        {
-            var fileName = Path.GetFileNameWithoutExtension(file);
-            return fileName.Substring(fileName.Length - 10, 10);
         }
 
         private void WriteLogs(List<OutputLog> logs)

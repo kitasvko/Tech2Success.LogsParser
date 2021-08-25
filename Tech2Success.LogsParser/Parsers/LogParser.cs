@@ -17,7 +17,7 @@ namespace Tech2Success.LogsParser.Parsers
 
         public List<OutputLog> Parse()
         {
-            var logs = GetLogs(_path);
+            var logs = File.ReadAllLines(_path);
 
             var processedLogs = ProcessLogs(logs);
 
@@ -52,7 +52,7 @@ namespace Tech2Success.LogsParser.Parsers
             log.ThreadId = int.Parse(splittedLog[2].Trim(new char[] { '[', ']' }));
             log.Type = ParseLogType(splittedLog[splittedLog.Length - 1]);
 
-            if (splittedLog.Length == 17)
+            if (line.Contains("batchSize"))
             {
                 var batchSize = splittedLog[16];
                 log.BatchSize = int.Parse(batchSize.Remove(batchSize.Length - 1));
@@ -104,11 +104,6 @@ namespace Tech2Success.LogsParser.Parsers
                 parsedLogs.Add(log);
             }
             return parsedLogs;
-        }
-
-        private string[] GetLogs(string path)
-        {
-            return File.ReadAllLines(path);
         }
 
         private LogType ParseLogType(string line)
