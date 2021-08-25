@@ -1,6 +1,6 @@
-﻿using System.Collections.Generic;
-using System.IO;
+﻿using System.IO;
 using System.Text;
+using System.Collections.Generic;
 using Tech2Success.LogsParser.Models;
 
 namespace Tech2Success.LogsParser.Export
@@ -8,6 +8,7 @@ namespace Tech2Success.LogsParser.Export
     public class ExcelExporter
     {
         private readonly string _path;
+
         public ExcelExporter(string path)
         {
             _path = path;
